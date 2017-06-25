@@ -44,7 +44,7 @@ def cleaner(fileName):
 	temp = checker(temp1, remove0)
 
 	author = authorScraper(temp)
-	abstractAuthor = [author, 'clean'+fileName]
+	abstractAuthor = [author, 'clean_'+fileName]
 
 	with open("clean_"+fileName, 'w', newline = "") as f:
 		writer = csv.writer(f)
@@ -59,7 +59,7 @@ def main():
 	absFiles = [f for f in os.listdir() if f.endswith("tex")]
 	absFiles = sorted(absFiles)
 
-	if any('clean' in abstract for abstract in absFiles):
+	if any('clean_' in abstract for abstract in absFiles):
 		runBool = False
 		run = input("It looks like you've already run the script. Are you sure you want to continue? y/N (default is No):   ")
 		if run.lower().startswith("y"):
