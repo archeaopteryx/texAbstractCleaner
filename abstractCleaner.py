@@ -24,12 +24,13 @@ def authorScraper(tempList):
 			author = re.sub(r'\\author{', "", entry[0])
 			author = re.sub(r'}%', "", author)
 			author = re.sub('\t', "", author)
+			author = re.sub(r'%% Your name', '', author)
 			break
 	return author
 
 def cleaner(fileName):
 
-	remove0 = "documentclass{abstractYRW.cls}"
+	remove0 = "\\documentclass{abstractYRW}%"
 	remove1 = "begin{document}"
 	remove2 = "end{document}"
 	temp = []
@@ -65,7 +66,8 @@ def main():
 		if run.lower().startswith("y"):
 			runBool = True
 		if runBool == False:
-			exit()
+			print('quitting')
+			quit()
 
 	for abstract in absFiles:
 		nextAuthor = cleaner(abstract)
