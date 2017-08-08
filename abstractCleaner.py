@@ -7,50 +7,43 @@
 #########################################################
 
 import os
+import sys
 import csv
 import re
 
 def checker(tempList, toRemove):
-	for entry in tempList:
-		if any(toRemove in val for val in entry):
-			tempList.remove(entry)
-			break
-	return tempList
+	remove = re.compile(toRemove)
+	newList = [val for val in tempList if remove.match(val) == None ]
+	return newList
 
 def authorScraper(tempList):
 	author = 'Error'
+	auth = re.compile('\\\\author\{')
+
 	for entry in tempList:
-		if any('\\author{' in val for val in entry):
-			author = re.sub(r'\\author{', "", entry[0])
+		if auth.match(entry):
+			author = entry.split()[0]+ ' ' + entry.split()[1]
+			author = re.sub('\\\\author{', "", author)
 			author = re.sub(r'}%', "", author)
-			author = re.sub('\t', "", author)
-			author = re.sub(r'%% Your name', '', author)
 			break
 	return author
 
 def cleaner(fileName):
 
-	remove0 = "\\documentclass{abstractYRW}%"
-	remove1 = "begin{document}"
-	remove2 = "end{document}"
-	temp = []
+	content = open(fileName).readlines()
 
-	with open(fileName, 'r') as f:
-		reader = csv.reader(f)
-		for row in reader:
-			temp.append(row)
-
-	temp2 = checker(temp, remove2)
-	temp1 = checker(temp2, remove1)
-	temp = checker(temp1, remove0)
+	temp1 = checker(content, "\\\\documentclass\{abstractYRW\}")
+	temp0 = checker(temp1, "\\\\end\{document\}")
+	temp = checker(temp0, "\\\\begin\{document\}")
 
 	author = authorScraper(temp)
-	abstractAuthor = [author, 'clean_'+fileName]
+	abstractAuthor = [author+' ', '\\input{clean_'+fileName+'}']
 
-	with open("clean_"+fileName, 'w', newline = "") as f:
-		writer = csv.writer(f)
-		for row in temp:
-			writer.writerow(row)
+	newFile = open("clean_"+fileName, 'w', newline = '\r\n')
+	for row in temp:
+		newFile.write(row)
+	newFile.close()
+
 
 	temp = []
 	return abstractAuthor
@@ -67,9 +60,10 @@ def main():
 			runBool = True
 		if runBool == False:
 			print('quitting')
-			quit()
+			sys.exit()
 
 	for abstract in absFiles:
+     
 		nextAuthor = cleaner(abstract)
 		absAuthorList.append(nextAuthor)
 
@@ -86,7 +80,4 @@ def main():
 	print('finished!')
 
 if __name__ == "__main__":
-	main()
-
-
-
+main()
